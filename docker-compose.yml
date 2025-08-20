@@ -1,0 +1,56 @@
+services:
+  pgdb:
+    image: postgres:alpine
+    container_name: postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    networks:
+      - backend
+    volumes:
+      - ./pgdb_user_data/postgresql/data:/var/lib/postgresql/data
+      # - pgdb_user_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  
+  app:
+    container_name: app
+    depends_on:
+      pgdb:
+        condition: service_healthy
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    networks:
+      - backend
+    ports:
+      - "8080:8080"
+  
+  migrations:
+    container_name: migrations
+    env_file:
+      - .env
+    depends_on:
+      pgdb:
+        condition: service_healthy
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: docker/migrations/Dockerfile
+    networks:
+      - backend
+  
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  pgdb_data:

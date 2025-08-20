@@ -1,0 +1,16 @@
+logger:
+  log_level: "info"
+  log_out: ""
+
+server_http:
+  address: "0.0.0.0:8080"
+  session_timeout: 4s
+  idle_timeout: 60s
+
+database:
+  database_env: postgres
+  port: 5432
+  host: pgdb
+  database_name: db
+  username: user
+  password: password

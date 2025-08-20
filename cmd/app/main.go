@@ -37,7 +37,6 @@ func main() {
 
 	r := web.NewRouting(service.NewService(repository.NewDatabase(db)), logger.Init(cfg))
 	r.RegisterRoutes(e)
-
 	go func() {
 		s.Start(e)
 	}()
@@ -47,4 +46,5 @@ func main() {
 
 	<-quit
 	s.Shutdown(e)
+	db.Close()
 }
